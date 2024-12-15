@@ -6,29 +6,29 @@ from langchain_cohere import CohereEmbeddings
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from utils.extractpdf import extract_text_from_pdf
+from dotenv import load_dotenv
+load_dotenv()
 
 class DocumentLoader:
-    def __init__(self, resumes_dir, chunk_size=1500, chunk_overlap=50, embedding_model="embed-english-light-v3.0"):
+    def __init__(self, chunk_size=1500, chunk_overlap=50, embedding_model="embed-english-light-v3.0"):
         """
         Initializes the DocumentLoader.
 
         Args:
-            resumes_dir (str): Path to the directory containing resume PDF files.
             chunk_size (int): Size of text chunks for splitting. Default is 1500.
             chunk_overlap (int): Overlap size between chunks. Default is 50.
             embedding_model (str): Name of the embedding model to use. Default is 'embed-english-light-v3.0'.
         """
-        if not os.path.exists(resumes_dir):
-            raise FileNotFoundError(f"The directory {resumes_dir} does not exist. Please check the path.")
+    
         
-        self.resumes_dir = resumes_dir
+        
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap
         )
         self.embedding_model = embedding_model
 
-    def load_documents(self,resume_files):
+    def load_documents(self,resume_files,resumes_dir):
         """
         Loads and processes resumes from the specified directory.
 
@@ -39,13 +39,17 @@ class DocumentLoader:
         documents = []
 
         for resume_file in resume_files:
-            file_path = os.path.join(self.resumes_dir, resume_file)
+            file_path = os.path.join(resumes_dir, resume_file)
             document_text = extract_text_from_pdf(file_path)
             document = Document(page_content=document_text, metadata={"source": resume_file})
             chunks = self.text_splitter.split_documents([document])
             documents.extend(chunks)
 
         return documents
+    
+    def embed_document(self,document_text):
+        embeddings = CohereEmbeddings(model=self.embedding_model)
+        return embeddings.embed_query(document_text)
 
     def store_in_vector_db(self, documents, mongodb_uri, db_name="rag_db", collection_name="embedded_resumes", index_name="resume_index"):
         """
