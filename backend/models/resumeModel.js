@@ -6,13 +6,17 @@ const ResumeSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  name:{
+    type: String,
+    required: true,
+  },
   pdf: {
     type: String,
     required: true, // URL or path to the PDF
   },
   embedding: {
     type: [Number], // Array of numbers representing the embedding
-    required: true,
+   
   },
 }, {
   timestamps: true, // Adds createdAt and updatedAt fields
