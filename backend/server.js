@@ -4,9 +4,12 @@ import path from "path";
 import extractTextFromPdf from "./utils/pdf-to-text.js";
 import uploadPdfToCloud from "./utils/upload-pdf-to-cloud.js";
 import fs from "fs";
-
+import connectDb from "./config/connectDb.js";
+import { configDotenv } from "dotenv";
 const app = express();
 const PORT = 4000;
+configDotenv();
+connectDb();
 
 // Configure Multer storage
 const storage = multer.diskStorage({
@@ -68,7 +71,14 @@ app.post("/upload-pdf", upload.single("file"), async (req, res) => {
   }
 });
 
+import jobsRoute from "./routes/jobsRoute.js";
+app.use(express.json());
+app.use("/jobs", jobsRoute);
+
+
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+

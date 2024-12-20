@@ -1,27 +1,16 @@
 import mongoose from 'mongoose';
 
-const JobListingSchema = new mongoose.Schema({
-  recruiter_id: {
-    type: String,
-    ref: 'Recruiter',
-    required: true,
-  },
-  title: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  company: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  description: {
+const similaritySchema = new mongoose.Schema({
+  joblisting: {
     type: String,
     required: true,
   },
-  embedded_description: {
-    type: [Number], // Array of numbers representing the vector embedding of the description
+  resume: {
+    type: String,
+    required: true,
+  },
+  similarity: {
+    type: Number,
     required: true,
   },
   expiresAt: {
