@@ -20,3 +20,4 @@ function cosineSimilarity(arr1, arr2) {
 }
 
 
+export default cosineSimilarity

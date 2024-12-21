@@ -21,7 +21,7 @@ const UploadPage = () => {
         formData.append('file', file);
 
         try {
-            const response = await fetch('http://localhost:4000/upload-pdf', {
+            const response = await fetch('http://localhost:4000/api/resume', {
                 method: 'POST',
                 body: formData,
             });

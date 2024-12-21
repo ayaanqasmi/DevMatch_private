@@ -23,4 +23,4 @@ const similaritySchema = new mongoose.Schema({
 });
 
 // Create the model
-export default mongoose.model("JobListing", JobListingSchema);
+export default mongoose.model("Similarity", similaritySchema);
