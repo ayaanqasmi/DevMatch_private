@@ -7,6 +7,12 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 from utils.extractpdf import extract_text_from_pdf
 from dotenv import load_dotenv
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_mongodb import MongoDBAtlasVectorSearch
+from langchain.prompts import PromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
+import re
 load_dotenv()
 
 class DocumentLoader:
@@ -28,44 +34,19 @@ class DocumentLoader:
         )
         self.embedding_model = embedding_model
 
-    def load_documents(self,resume_files,resumes_dir):
-        """
-        Loads and processes resumes from the specified directory.
-
-        Returns:
-            List[Document]: List of processed and split Document objects.
-        """
-       
-        documents = []
-
-        for resume_file in resume_files:
-            file_path = os.path.join(resumes_dir, resume_file)
-            document_text = extract_text_from_pdf(file_path)
-            document = Document(page_content=document_text, metadata={"source": resume_file})
-            chunks = self.text_splitter.split_documents([document])
-            documents.extend(chunks)
-
-        return documents
-    
     def embed_document(self,document_text):
         embeddings = CohereEmbeddings(model=self.embedding_model)
         return embeddings.embed_query(document_text)
 
-    def store_in_vector_db(self, documents, mongodb_uri, db_name="rag_db", collection_name="embedded_resumes", index_name="resume_index"):
-        """
-        Embeds documents and stores them in a MongoDB Atlas Vector Search.
+    def store_in_vector_db(self, documentText,documentId, db_name="rag_db", collection_name="resume", index_name="resume_index"):
+        documents=[]
+        document = Document(page_content=documentText, metadata={"source": documentId})
+        chunks = self.text_splitter.split_documents([document])  # Pass the document in a list
+        documents.extend(chunks)
 
-        Args:
-            documents (List[Document]): List of Document objects to store.
-            mongodb_uri (str): MongoDB connection URI.
-            db_name (str): Name of the database. Default is 'rag_db'.
-            collection_name (str): Name of the collection. Default is 'embedded_resumes'.
-            index_name (str): Name of the vector search index. Default is 'resume_index'.
-
-        Returns:
-            MongoDBAtlasVectorSearch: Configured vector store instance.
-        """
+      
         embeddings = CohereEmbeddings(model=self.embedding_model)
+        mongodb_uri = os.getenv("MONGODB_URI")
         client = MongoClient(mongodb_uri)
         collection = client[db_name][collection_name]
 
@@ -77,6 +58,83 @@ class DocumentLoader:
         )
 
         return vector_store
+    def delete_documents_by_id(self,document_id, db_name="rag_db", collection_name="resume"):
+        """
+        Delete all documents in the MongoDB vector database that have a specific document ID in their metadata.
+
+        :param document_id: The ID to match in the metadata's "source" field.
+        :param db_name: The name of the database.
+        :param collection_name: The name of the collection.
+        """
+        mongodb_uri = os.getenv("MONGODB_URI")
+        if not mongodb_uri:
+            raise ValueError("MONGODB_URI environment variable is not set.")
+
+        client = MongoClient(mongodb_uri)
+        collection = client[db_name][collection_name]
+
+        # Delete documents where metadata.source matches the given document_id
+        delete_result = collection.delete_many({"source": document_id})
+
+        return delete_result.deleted_count
+    def query_vector_db(self, query, db_name="rag_db", collection_name="resume", index_name="resume_index"):
+        mongodb_uri = os.getenv("MONGODB_URI")
+        if not mongodb_uri:
+            raise ValueError("MONGODB_URI environment variable is not set.")
+
+        client = MongoClient(mongodb_uri)
+        collection = client[db_name][collection_name]
+
+        vector_store = MongoDBAtlasVectorSearch(
+            collection=collection,
+            embedding=CohereEmbeddings(model=self.embedding_model),
+            index_name=index_name
+        )
+        doc_count = collection.count_documents({})
+        print(f"Number of documents in the collection: {doc_count}")
+        retriever = vector_store.as_retriever(
+            search_type="similarity",
+            return_metadata=True
+        )
+        llm = ChatGoogleGenerativeAI(
+            model="gemini-1.5-flash",
+            temperature=0,
+            max_tokens=None,
+            timeout=None,
+            max_retries=2,
+            # other params...
+        )
+
+
+        prompt = PromptTemplate.from_template("""
+        Find the most suitable resume based on the following Job description in terms of experience. Explain why. 
+        Return the anser in json format, with a field for metadata, and a field for explanation. The metadata field must only include document_id and source. Nothing else.
+                                                                                    
+        Job Description: {question}
+        Context: {context}
+        """)
+        rag_chain = (
+        { "context": retriever, "question": RunnablePassthrough()}
+        | prompt
+        | llm
+        | StrOutputParser()
+        )
+        question = (
+            str(query)
+        )
+
+
+        try:
+            results = rag_chain.invoke(question)
+            if results:
+                # Parse and return the ID from the LLM's response
+                print("LLM Response:", results)
+                
+                return {"response": results}
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+        
 
 # Example usage
 if __name__ == "__main__":

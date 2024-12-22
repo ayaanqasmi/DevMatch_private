@@ -6,7 +6,7 @@ load_dotenv()
 
 from pymongo.operations import SearchIndexModel
 client = MongoClient(os.getenv("MONGODB_URI"))
-collection = client["rag_db"]["embedded_resumes"]
+collection = client["rag_db"]["resume"]
 
 search_index_model = SearchIndexModel(
   definition = {
