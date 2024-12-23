@@ -7,8 +7,9 @@ import {
   getResumeById,
   getAllResumes,
   deleteResumeById,
+  queryResumes
 } from "../controllers/resumeController.js";
-
+import validateTokenHandler from "../middleware/validateTokenHandler.js";
 const router = express.Router();
 
 // Ensure the uploads directory exists
@@ -58,31 +59,10 @@ const uploadErrorHandler = (err, req, res, next) => {
 };
 
 // Define routes
-router.post("/resume", upload.single("file"), uploadErrorHandler, createResume);
+router.post("/resume", upload.single("file"), uploadErrorHandler, validateTokenHandler,createResume);
 router.get("/resume/:id", getResumeById);
 router.get("/resume", getAllResumes);
-router.delete("/resume/:id", deleteResumeById);
+router.delete("/resume/:id", validateTokenHandler,deleteResumeById);
 
-import { ObjectId } from "mongodb";
-import { uploadPdfToCloud } from "../utils/upload-pdf-to-cloud.js";
-router.post("/upload-test", upload.single("file"), async (req, res) => {
-  if (!req.file) {
-    return res
-      .status(400)
-      .json({ success: false, message: "No file uploaded." });
-  }
-  console.log(`Uploading file: ${req.file.path}`);
-  try {
-    const newId=new ObjectId();
-    await uploadPdfToCloud(req.file.path, newId);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ success: false, message: err.message });
-  }
-
-  res
-    .status(200)
-    .json({ success: true, message: "File uploaded successfully" });
-});
 
 export default router;

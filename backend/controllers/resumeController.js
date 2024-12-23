@@ -8,12 +8,13 @@ import cosineSimilarity from "../utils/cosine-similarity.js";
 import { ObjectId } from "mongodb";
 
 const createResume = (async (req, res) => {
+  
   if (!req.file) {
     return res.status(400).json({ success: false, message: "No file uploaded." });
   }
 
-  const newId = new ObjectId();
-  const user_id=new ObjectId();
+  const newId = new ObjectId(); //resume id
+  const user_id=req.user.id;
 
   try {
     // Upload the file to the cloud
@@ -25,7 +26,14 @@ const createResume = (async (req, res) => {
     if (!text) {
       return res.status(400).json({ success: false, message: "Failed to extract text from the PDF." });
     }
-
+    // adds resume to vector database
+    const addDocument = await fetch("http://localhost:5000/api/add_document", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ document:text,document_id:newId }),
+    });
     // Get embedding for the extracted resume text
     const embedResponse = await fetch("http://localhost:5000/api/embedText", {
       method: "POST",
@@ -110,9 +118,17 @@ const getAllResumes = (async (req, res) => {
 
 const deleteResumeById = (async (req, res) => {
   try {
-    const resume = await resumeModel.findByIdAndDelete(req.params.id);
-    await deleteFile(req.params.id);
-    await similarityModel.deleteMany({ resume: req.params.id });
+    const idToDelete=req.params.id
+    const resume = await resumeModel.findByIdAndDelete(idToDelete);
+    await deleteFile(idToDelete);
+    await similarityModel.deleteMany({ resume: idToDelete });
+    await fetch("http://localhost:5000/api/remove_document", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ document_id:idToDelete }),
+    });
     if (!resume) {
       return res.status(404).send("Resume not found.");
     }

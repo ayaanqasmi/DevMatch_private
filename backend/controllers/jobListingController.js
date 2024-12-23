@@ -4,8 +4,8 @@ import similarityModel from "../models/similarityModel.js";
 import cosineSimilarity from "../utils/cosine-similarity.js";
 
 const createJobListing = async (req, res) => {
-  const { recruiter_id, title, company, description, expiresInDays } = req.body;
-
+  const { title, company, description, expiresInDays } = req.body;
+  const recruiter_id=req.user.id;
   if (!recruiter_id || !title || !company || !description) {
     return res
       .status(400)
@@ -100,6 +100,7 @@ const getAllJobListings= async (req, res) => {
       res.status(500).json({ success: false, error: error.message });
     }
   };
+  
   
   export { getJobById };
 

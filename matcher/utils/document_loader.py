@@ -5,8 +5,6 @@ from langchain_mongodb import MongoDBAtlasVectorSearch
 from langchain_cohere import CohereEmbeddings
 from pymongo import MongoClient
 from dotenv import load_dotenv
-from utils.extractpdf import extract_text_from_pdf
-from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_mongodb import MongoDBAtlasVectorSearch
 from langchain.prompts import PromptTemplate
@@ -136,17 +134,3 @@ class DocumentLoader:
 
         
 
-# Example usage
-if __name__ == "__main__":
-    load_dotenv()
-    
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    resumes_dir = os.path.join(current_dir, "INFORMATION-TECHNOLOGY")
-
-    loader = DocumentLoader(resumes_dir)
-    documents = loader.load_documents()
-
-    mongodb_uri = os.getenv("MONGODB_URI")
-    vector_store = loader.store_in_vector_db(documents, mongodb_uri)
-
-    print("Documents processed and stored successfully.")

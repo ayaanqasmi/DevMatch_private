@@ -22,7 +22,7 @@ def api():
     
         
 
-@app.route('/add_document', methods=['POST'])
+@app.route('/api/add_document', methods=['POST'])
 def add_document_to_rag_db():
     data = request.get_json()
     document=data["document"]
@@ -34,7 +34,7 @@ def add_document_to_rag_db():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e),'document_id':document_id,'document':document})
 
-@app.route('/remove_document', methods=['POST'])
+@app.route('/api/remove_document', methods=['POST'])
 def remove_document_from_rag_db():
     document_id=request.get_json()
     document_id=document_id["document_id"]
@@ -44,7 +44,7 @@ def remove_document_from_rag_db():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
-@app.route('/query_documents', methods=['POST'])
+@app.route('/api/query_documents', methods=['POST'])
 def query_documents_in_rag_db():
     query = request.get_json()
     query=query["query"]
