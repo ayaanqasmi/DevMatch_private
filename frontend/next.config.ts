@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  env: {
+    BACKEND_API_URL: 'http://localhost:4000', // Replace with your backend URL
+  },
 };
 
 export default nextConfig;

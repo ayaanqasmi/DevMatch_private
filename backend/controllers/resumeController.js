@@ -6,6 +6,7 @@ import extractTextFromPdf from "../utils/pdf-to-text.js";
 import {uploadPdfToCloud,deleteFile} from "../utils/upload-pdf-to-cloud.js";
 import cosineSimilarity from "../utils/cosine-similarity.js";
 import { ObjectId } from "mongodb";
+import mongoose from "mongoose"
 
 const createResume = (async (req, res) => {
   
@@ -108,7 +109,7 @@ const getResumeById = (async (req, res) => {
 
 const getAllResumes = (async (req, res) => {
   try {
-    const resumes = await resumeModel.find();
+    const resumes = await resumeModel.find().select('-embedding');
     res.status(200).json({ success: true, data: resumes });
   } catch (error) {
     console.error("Error fetching resumes:", error);
@@ -139,4 +140,34 @@ const deleteResumeById = (async (req, res) => {
   }
 });
 
-export { createResume, getResumeById, getAllResumes, deleteResumeById };
+
+
+const getResumesByUserId = async (req, res) => {
+  const userId = req.params.userId; // Assuming the user ID is passed as a route parameter
+
+  // Validate the userId is provided and is a valid ObjectId
+  if (!userId) {
+    return res.status(400).json({ success: false, message: 'User ID is required.' });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ success: false, message: 'Invalid User ID format.' });
+  }
+
+  try {
+    // Fetch resumes associated with the provided user ID, excluding the embedding field
+    const resumes = await resumeModel.find({ user_id: userId }).select('-embedding');
+
+    if (!resumes || resumes.length === 0) {
+      return res.status(404).json({ success: false, message: 'No resumes found for the specified user.' });
+    }
+
+    res.status(200).json({ success: true, data: resumes });
+  } catch (error) {
+    console.error("Error fetching resumes:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+
+export { createResume, getResumeById, getAllResumes, deleteResumeById ,getResumesByUserId};

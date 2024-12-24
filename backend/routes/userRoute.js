@@ -1,12 +1,14 @@
 import express from "express";
-import {registerUser,loginUser,currentUser} from "../controllers/userController.js"
+import {registerUser,loginUser,currentUser,getAllUsers} from "../controllers/userController.js"
 import validateTokenHandler from "../middleware/validateTokenHandler.js";
 const router=express.Router();
 
-router.route("/register").post(registerUser);
+router.post("/user/register",registerUser)
 
-router.route("/login").post(loginUser);
+router.post("/user/login",loginUser)
 
-router.get("/current",validateTokenHandler,currentUser);
+router.get("/user/current",validateTokenHandler,currentUser);
+
+router.get("/user",getAllUsers);
 
 export default router

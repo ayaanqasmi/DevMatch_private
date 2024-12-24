@@ -66,7 +66,7 @@ const createJobListing = async (req, res) => {
 };
 const getAllJobListings= async (req, res) => {
     try {
-      const jobListings = await JobListing.find();
+      const jobListings = await JobListing.find().select('-embedded_description');
       res.status(200).json({ success: true, data: jobListings });
     } catch (error) {
       res.status(500).json({ success: false, error: error.message });

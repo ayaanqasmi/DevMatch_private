@@ -14,7 +14,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
   const isEmail = await userModel.findOne({ email });
   if (isEmail) {
-    res.status(400).json * { msg: "email already in use" };
+    res.status(400).json ({ msg: "email already in use" });
     throw new Error("already in use");
   }
 
@@ -29,7 +29,7 @@ const registerUser = asyncHandler(async (req, res) => {
   if (newUser) {
     res.status(201).json({ _id: newUser.id, username: newUser.username });
   } else {
-    res.status(400).json * { msg: "couldnt create user" };
+    res.status(400).json({ msg: "couldnt create user" });
     throw new Error("no bueno");
   }
 });
@@ -38,7 +38,9 @@ const registerUser = asyncHandler(async (req, res) => {
 // @route   POST /api/users/login
 // @access  Public
 const loginUser = asyncHandler(async (req, res) => {
+  
   const { email, password } = req.body;
+  console.log(email,password)
   if (!email || !password) {
     res.status(400).json({ msg: "enter all fiel dimwit" });
     throw new Error("incomplete fields");
@@ -63,9 +65,9 @@ const loginUser = asyncHandler(async (req, res) => {
         id: user.id,
       },
     },
-    process.env.ACCESS_TOKEN_SECRET,{expiresIn:"20m"}
+    process.env.ACCESS_TOKEN_SECRET,{expiresIn:"120m"}
   );
-  
+  res.cookie("jwt", accessToken, { httpOnly: true, sameSite: "None", secure: true , maxAge: 2*60*60*1000});
   res.status(200).json({ token: accessToken });
 });
 
@@ -76,4 +78,8 @@ const currentUser = asyncHandler(async (req, res) => {
   res.json(req.user);
 });
 
-export { registerUser, loginUser, currentUser };
+const getAllUsers = asyncHandler(async (req, res) => {
+  const users = await userModel.find();
+  res.status(200).json({ success: true, data: users });
+})
+export { registerUser, loginUser, currentUser ,getAllUsers};

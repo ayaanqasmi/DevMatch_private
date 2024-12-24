@@ -24,6 +24,9 @@ const UploadPage = () => {
             const response = await fetch('http://localhost:4000/api/resume', {
                 method: 'POST',
                 body: formData,
+                headers: {
+                    'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiYWRtaW4iLCJlbWFpbCI6ImFkbWluQGFkbWluIiwiaWQiOiI2NzZhYjkwZjNjZGY5YzMwZGM3YzMyMjAifSwiaWF0IjoxNzM1MDYyNzE2LCJleHAiOjE3MzUwNjk5MTZ9.asy2HtVWOi-KrC55OGjjJnFW0XQAZVA_tmmAzQQtOIA`
+                }
             });
 
             if (response.ok) {

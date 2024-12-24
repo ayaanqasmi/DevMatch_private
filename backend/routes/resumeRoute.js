@@ -7,7 +7,7 @@ import {
   getResumeById,
   getAllResumes,
   deleteResumeById,
-  queryResumes
+  getResumesByUserId
 } from "../controllers/resumeController.js";
 import validateTokenHandler from "../middleware/validateTokenHandler.js";
 const router = express.Router();
@@ -61,6 +61,7 @@ const uploadErrorHandler = (err, req, res, next) => {
 // Define routes
 router.post("/resume", upload.single("file"), uploadErrorHandler, validateTokenHandler,createResume);
 router.get("/resume/:id", getResumeById);
+router.get("/resume/user/:userId", getResumesByUserId);
 router.get("/resume", getAllResumes);
 router.delete("/resume/:id", validateTokenHandler,deleteResumeById);
 
