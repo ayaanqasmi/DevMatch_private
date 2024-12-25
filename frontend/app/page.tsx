@@ -5,13 +5,13 @@ const UploadPage = () => {
     const [file, setFile] = useState(null);
     const [message, setMessage] = useState('');
 
-    const handleFileChange = (event) => {
-        setFile(event.target.files[0]);
-    };
+    // Handle file selection
+    const handleFileChange = (event) => setFile(event.target.files[0]);
 
+    // Handle form submission
     const handleSubmit = async (event) => {
         event.preventDefault();
-        
+
         if (!file) {
             setMessage("Please select a PDF file.");
             return;
@@ -24,9 +24,7 @@ const UploadPage = () => {
             const response = await fetch('http://localhost:4000/api/resume', {
                 method: 'POST',
                 body: formData,
-                headers: {
-                    'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiYWRtaW4iLCJlbWFpbCI6ImFkbWluQGFkbWluIiwiaWQiOiI2NzZhYjkwZjNjZGY5YzMwZGM3YzMyMjAifSwiaWF0IjoxNzM1MDYyNzE2LCJleHAiOjE3MzUwNjk5MTZ9.asy2HtVWOi-KrC55OGjjJnFW0XQAZVA_tmmAzQQtOIA`
-                }
+                headers: { 'Authorization': `Bearer <your-token-here>` }
             });
 
             if (response.ok) {
