@@ -1,31 +1,29 @@
 import { Storage } from "@google-cloud/storage";
 import path from "path";
 
-// Instantiate a storage client
+// Instantiate a storage client with the service account key
 const storage = new Storage({
-  keyFilename: path.join( 'utils/devmatch-445212-2b9e3f65c01d.json'),
+  keyFilename: path.join('utils/devmatch-445212-2b9e3f65c01d.json'),
 });
 const bucketName = "devmatch-resumes";
-async function uploadPdfToCloud(localFilePath, fileName) {
- 
 
-  const destinationBlobName =  String(fileName) + ".pdf"; // Replace with your desired bucket path
+// Function to upload a PDF file to Google Cloud Storage
+async function uploadPdfToCloud(localFilePath, fileName) {
+  const destinationBlobName = String(fileName) + ".pdf"; // Destination file name in the cloud
 
   try {
     await storage.bucket(bucketName).upload(localFilePath, {
-      destination: destinationBlobName, // The destination path in the bucket
+      destination: destinationBlobName, // Specify destination in the bucket
     });
-    console.log(
-      `${localFilePath} uploaded to ${bucketName} as ${destinationBlobName}`
-    );
+    console.log(`${localFilePath} uploaded to ${bucketName} as ${destinationBlobName}`);
   } catch (error) {
     console.error("Error uploading file:", error);
   }
 }
 
-
+// Function to delete a file from Google Cloud Storage
 async function deleteFile(fileName) {
-  const destinationBlobName =  String(fileName) + ".pdf";
+  const destinationBlobName = String(fileName) + ".pdf"; // File name to delete
   try {
     await storage.bucket(bucketName).file(destinationBlobName).delete();
     console.log(`File ${destinationBlobName} deleted from bucket ${bucketName}.`);
@@ -33,4 +31,5 @@ async function deleteFile(fileName) {
     console.error('Error deleting file:', error);
   }
 }
-export  {uploadPdfToCloud,deleteFile};
+
+export { uploadPdfToCloud, deleteFile }; // Export the functions for use elsewhere

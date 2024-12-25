@@ -1,39 +1,42 @@
 import expressAsyncHandler from "express-async-handler";
-import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken";
 
-const validateTokenHandler=expressAsyncHandler(async (req,res,next)=>{
+// Middleware to validate token
+const validateTokenHandler = expressAsyncHandler(async (req, res, next) => {
 
     let userToken;
-    let authHeader=req.headers.authorization;
+    let authHeader = req.headers.authorization; // Get authorization header from request
     
-    authHeader=authHeader.split(" ")
+    // Split the authorization header to extract the token
+    authHeader = authHeader.split(" "); 
     
-    if(authHeader && (authHeader[0]=="Bearer")){
-        userToken=authHeader[1]
+    // Check if the header exists and starts with "Bearer"
+    if (authHeader && authHeader[0] === "Bearer") {
+        userToken = authHeader[1]; // Extract token from header
         
-        jwt.verify(userToken,process.env.ACCESS_TOKEN_SECRET,(err,decoded)=>{
-            if(err){
-                console.log(decoded)
-                console.log(err)
-                res.status(401)
-                throw new Error("unauthorized1")
+        // Verify the token using the secret
+        jwt.verify(userToken, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+            if (err) {
+                console.log(decoded); // Log decoded data (optional)
+                console.log(err); // Log the error for debugging
+                res.status(401); // Unauthorized status code
+                throw new Error("unauthorized1"); // Throw error if token is invalid
             }
-            console.log(decoded)
-            req.user=decoded.user
-            next()
-        })
+            console.log(decoded); // Log decoded user info (optional)
+            req.user = decoded.user; // Attach decoded user data to request object
+            next(); // Proceed to the next middleware or route handler
+        });
         
-        if(!userToken){
-            res.status(401)
-            throw new Error("unauthorized2")
+        // Check if userToken is missing
+        if (!userToken) {
+            res.status(401); // Unauthorized status code
+            throw new Error("unauthorized2"); // Throw error if no token is provided
         }
+    } else {
+        // Handle case where the header is missing or incorrect
+        res.status(401); // Unauthorized status code
+        throw new Error("unauthorized3"); // Throw error if authorization header is not in the expected format
     }
-    else{
-        res.status(401)
-        throw new Error("unauthprized3")
-    }
+});
 
-
-})
-
-export default validateTokenHandler
+export default validateTokenHandler; // Export the middleware

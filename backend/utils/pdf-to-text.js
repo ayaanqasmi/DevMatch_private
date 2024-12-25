@@ -1,5 +1,6 @@
 import { PDFExtract } from "pdf.js-extract";
 
+// Function to extract text from a PDF file
 const extractTextFromPdf = (pdfPath) => {
     console.log("extracting...");
     const pdfExtract = new PDFExtract();
@@ -19,7 +20,7 @@ const extractTextFromPdf = (pdfPath) => {
                 });
             });
 
-            resolve(extractedText.trim()); // Resolve the promise with the extracted text
+            resolve(extractedText.trim()); // Return the extracted text
         });
     });
 };
