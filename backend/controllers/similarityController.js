@@ -52,27 +52,37 @@ const getJobListingsByResumeSimilarity = async (req, res) => {
 // Get resumes by their similarity to a specific job listing
 const getResumesByJobListingSimilarity = async (req, res) => {
   const jobListingId = req.params.jobListingId;
-  const limit = parseInt(req.query.limit, 10) || 10; // Default limit to 10
-  const page = parseInt(req.query.page, 10) || 1; // Default page to 1
 
   try {
     // Step 1: Get resume IDs and similarity scores for the given job listing
     const similarities = await similarityModel.find({ joblisting: jobListingId })
       .sort({ similarity: -1 }) // Sort by similarity in descending order
-      .skip((page - 1) * limit) // Skip based on page number for pagination
-      .limit(limit) // Limit results based on the specified page size
-      .select('resume'); // Only include the resume field
+      .select(['resume', 'similarity']); // Include resume and similarity fields
 
+    // Step 2: Extract the resume IDs
     const resumeIds = similarities.map((similarity) => similarity.resume);
 
-    // Step 2: Fetch full resume documents excluding their embedding field
-    const resumes = await Resume.find({ _id: { $in: resumeIds } }).select('-embedding');
+    // Step 3: Fetch full resume documents excluding their embedding field
+    const resumes = await Resume.find({ _id: { $in: resumeIds } })
+      .select('-embedding');
 
-    res.status(200).json({ success: true, data: resumes });
+    // Step 4: Create a map for fast lookup of resumes by ID
+    const resumeMap = new Map(
+      resumes.map((resume) => [resume._id.toString(), resume.toObject()])
+    );
+
+    // Step 5: Map resumes with their similarity scores, preserving the order
+    const resumesWithSimilarity = similarities.map((similarity) => {
+      const resume = resumeMap.get(similarity.resume.toString());
+      return resume ? { ...resume, similarity: similarity.similarity } : null; // Handle missing resumes
+    }).filter(Boolean); // Remove null values
+
+    res.status(200).json({ success: true, data: resumesWithSimilarity });
   } catch (error) {
     console.error("Error fetching resumes:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
 
 export { getResumesByJobListingSimilarity, getJobListingsByResumeSimilarity, getAllSimilarityEntries };
