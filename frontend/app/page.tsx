@@ -24,7 +24,7 @@ const UploadPage = () => {
             const response = await fetch('http://localhost:4000/api/resume', {
                 method: 'POST',
                 body: formData,
-                headers: { 'Authorization': `Bearer <your-token-here>` }
+                headers: { 'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiYWRtaW4iLCJlbWFpbCI6ImFkbWluQGFkbWluIiwiaWQiOiI2NzZhYjkwZjNjZGY5YzMwZGM3YzMyMjAifSwiaWF0IjoxNzM1MTU4MDIyLCJleHAiOjE3MzUxNjUyMjJ9.Pe33hbATNFMzL6Nlb-gF7n3jw2w9ilZ2kt545YKi_B8` }
             });
 
             if (response.ok) {
