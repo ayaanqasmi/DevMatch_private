@@ -40,7 +40,7 @@ const useFetchUserResume = (userId: string | null): UseFetchResumesReturn => {
         setResumes(data.data);
       } else {
         const errorData = await response.json();
-        setError(errorData.message || "An error occurred fetching resumes");
+        setError(errorData.msg || "An error occurred fetching resumes");
       }
     } catch (error) {
       setError("An error occurred fetching resumes");

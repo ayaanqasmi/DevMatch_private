@@ -154,6 +154,8 @@ class DocumentLoader:
         prompt = PromptTemplate.from_template("""
         Find the most suitable resume based on the following Job description in terms of experience. Explain why. 
         Return the answer in JSON format, with a field for metadata, and a field for explanation. The metadata field must only include document_id and source. Nothing else.
+        DO not mention resume id to the explanation. The explanation will be sent directly to the recruiter, so keep it courteous, and do not reveal any backend metadata in it.
+        Once again, I emphasize: Return the answer in JSON format, with a field for metadata, and a field for explanation. The metadata field must only include document_id and source. Nothing else.                                                                    
         Job Description: {question}
         Context: {context}
         """)

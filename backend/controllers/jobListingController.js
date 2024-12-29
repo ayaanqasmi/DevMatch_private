@@ -122,5 +122,29 @@ const getJobById = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+// Get all job listings by a specific recruiter ID
+const getJobListingByUserID = async (req, res) => {
+  console.log("hiiii")
+  try {
+    const recruiter_id = req.params.userId;
 
-export { createJobListing, getAllJobListings, deleteJobListing, getJobById };
+    // Fetch job listings by the recruiter ID, excluding the embedded_description field
+    const jobListings = await JobListing.find({ recruiter_id }).select('-embedded_description');
+
+    if (!jobListings || jobListings.length === 0) {
+      return res.status(404).json({ success: false, msg: "No job listings found. Create one" });
+    }
+
+    // Return the job listings data
+    console.log("successfully fetched job listings for user:`", recruiter_id);
+    res.status(200).json({ success: true, data: jobListings });
+  } catch (error) {
+    // Log and return error response if fetching fails
+    console.error("Error fetching job listings by user ID:", error);
+    res.status(500).json({ success: false, msg: error.message });
+  }
+};
+
+export { createJobListing, getAllJobListings, deleteJobListing, getJobById, getJobListingByUserID };
+
+

@@ -1,9 +1,10 @@
 from flask import Flask, jsonify, request
 from utils.document_loader import DocumentLoader
-
+from flask_cors import CORS
 d = DocumentLoader()  # Initialize the DocumentLoader instance
 app = Flask(__name__)
 
+CORS(app)
 # Home route
 @app.route('/')
 def home():

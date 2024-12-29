@@ -160,11 +160,11 @@ const getResumesByUserId = async (req, res) => {
 
   // Validate the user ID
   if (!userId) {
-    return res.status(400).json({ success: false, message: 'User ID is required.' });
+    return res.status(400).json({ success: false, msg: 'User ID is required.' });
   }
 
   if (!mongoose.Types.ObjectId.isValid(userId)) {
-    return res.status(400).json({ success: false, message: 'Invalid User ID format.' });
+    return res.status(400).json({ success: false, msg: 'Invalid User ID format.' });
   }
 
   try {
@@ -172,13 +172,13 @@ const getResumesByUserId = async (req, res) => {
     const resumes = await resumeModel.find({ user_id: userId }).select('-embedding');
 
     if (!resumes || resumes.length === 0) {
-      return res.status(404).json({ success: false, message: 'No resumes found for the specified user.' });
+      return res.status(404).json({ success: false, msg: 'No resumes found. Upload one' });
     }
 
     res.status(200).json({ success: true, data: resumes });
   } catch (error) {
     console.error("Error fetching resumes:", error);
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({ success: false, msg: error.message });
   }
 };
 

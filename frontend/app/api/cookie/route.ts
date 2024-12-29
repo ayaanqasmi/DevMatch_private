@@ -37,3 +37,11 @@ export async function GET() {
     );
   }
 }
+
+export async function DELETE() {
+  // Clear cookies
+  const cookieStore = await cookies();
+  cookieStore.delete("jwt");
+
+  return NextResponse.json({ message: "Cookies cleared" }, { status: 200 });
+}

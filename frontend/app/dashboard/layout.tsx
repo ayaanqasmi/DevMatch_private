@@ -8,9 +8,9 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
     <div className="flex min-h-screen">
       {/* Sidebar */}
       <aside className="w-64 bg-gray-800 text-white flex flex-col">
-        <div className="p-6 text-2xl font-bold border-b border-gray-700">
+        <Link href="/dashboard" className="p-6 text-2xl font-bold border-b border-gray-700 ">
           Devmatch
-        </div>
+        </Link>
         <nav className="flex-1 p-4 space-y-4">
           <Link href="/dashboard/hire" className="block px-4 py-2 rounded hover:bg-gray-700">
            Hire

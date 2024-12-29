@@ -4,6 +4,7 @@ import {
   getAllJobListings, // Controller function to get all job listings
   deleteJobListing, // Controller function to delete a job listing by ID
   getJobById, // Controller function to get a job listing by ID
+  getJobListingByUserID
 } from '../controllers/jobListingController.js'; // Adjust the path as needed
 
 import validateTokenHandler from "../middleware/validateTokenHandler.js"; // Middleware to validate the token
@@ -18,6 +19,7 @@ router.get('/jobs', getAllJobListings);
 
 // GET request to fetch a job listing by its ID
 router.get('/jobs/:id', getJobById);
+router.get('/jobs/user/:userId', getJobListingByUserID);
 
 // DELETE request to delete a job listing by its ID, with token validation
 router.delete('/jobs/:id', validateTokenHandler, deleteJobListing);
